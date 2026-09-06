@@ -25,7 +25,11 @@ r.get('/', auth, async (req, res) => {
     params = [req.user.id, req.user.id, req.user.id];
   }
   if (req.query.tripId) { sql += (params.length ? ' AND' : ' WHERE') + ' e.trip_id = ?'; params.push(req.query.tripId); }
-  if (req.query.truckId) { sql += (params.length ? ' AND' : ' WHERE') + ' t.truck_id = ?'; params.push(req.query.truckId); }
+  if (req.query.truckId) {
+    sql += (params.length ? ' AND' : ' WHERE') +
+      ' (t.truck_id = ? OR (e.trip_id IS NULL AND EXISTS (SELECT 1 FROM trucks tk WHERE tk.id = ? AND tk.driver_id = e.created_by)))';
+    params.push(req.query.truckId, req.query.truckId);
+  }
   sql += ' ORDER BY e.created_at DESC';
   const [rows] = await pool.query(sql, params);
   res.json({ success: true, expenses: rows });

@@ -10,8 +10,18 @@ class DashboardScreen extends StatelessWidget{
  final String token;final Map user;
  const DashboardScreen({super.key,required this.token,required this.user});
  Future<void> _logout(BuildContext c)async{
-   await Session.clear();
-   if(c.mounted) Navigator.pushAndRemoveUntil(c,MaterialPageRoute(builder:(_)=>const LoginScreen()),(_)=>false);
+   final ok=await showDialog<bool>(context:c,builder:(ctx)=>AlertDialog(
+     title:const Text('Logout'),
+     content:const Text('Are you sure you want to logout?'),
+     actions:[
+       TextButton(onPressed:()=>Navigator.pop(ctx,false),child:const Text('Cancel')),
+       FilledButton(onPressed:()=>Navigator.pop(ctx,true),child:const Text('Logout')),
+     ],
+   ));
+   if(ok==true){
+     await Session.clear();
+     if(c.mounted) Navigator.pushAndRemoveUntil(c,MaterialPageRoute(builder:(_)=>const LoginScreen()),(_)=>false);
+   }
  }
  @override Widget build(BuildContext c){
    final isOwner=user['role']=='OWNER'||user['role']=='ADMIN';
