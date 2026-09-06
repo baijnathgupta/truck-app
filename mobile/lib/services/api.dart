@@ -27,6 +27,12 @@ class Api {
    return jsonDecode(r.body);
  }
 
+ static Future<Map<String,dynamic>> assignDriver(String token,int truckId,int? driverId) async{
+   final r=await http.post(Uri.parse('$base/trucks/$truckId/assign-driver'),headers:_headers(token),
+     body:jsonEncode({'driverId':driverId}));
+   return jsonDecode(r.body);
+ }
+
  static Future<Map<String,dynamic>> drivers(String token) async{
    final r=await http.get(Uri.parse('$base/drivers'),headers:_headers(token));
    return jsonDecode(r.body);
@@ -48,8 +54,16 @@ class Api {
    return jsonDecode(r.body);
  }
 
- static Future<Map<String,dynamic>> expenses(String token,{int? tripId}) async{
-   final uri=Uri.parse('$base/expenses').replace(queryParameters:tripId!=null?{'tripId':'$tripId'}:null);
+ static Future<Map<String,dynamic>> completeTrip(String token,int id) async{
+   final r=await http.post(Uri.parse('$base/trips/$id/complete'),headers:_headers(token));
+   return jsonDecode(r.body);
+ }
+
+ static Future<Map<String,dynamic>> expenses(String token,{int? tripId,int? truckId}) async{
+   final params = <String,String>{};
+   if(tripId!=null) params['tripId']='$tripId';
+   if(truckId!=null) params['truckId']='$truckId';
+   final uri=Uri.parse('$base/expenses').replace(queryParameters:params.isEmpty?null:params);
    final r=await http.get(uri,headers:_headers(token));
    return jsonDecode(r.body);
  }

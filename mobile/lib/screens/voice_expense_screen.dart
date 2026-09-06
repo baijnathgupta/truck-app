@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import '../services/api.dart';
-class VoiceExpenseScreen extends StatefulWidget{final String token;const VoiceExpenseScreen({super.key,required this.token});@override State<VoiceExpenseScreen> createState()=>_S();}
+class VoiceExpenseScreen extends StatefulWidget{final String token;final String role;const VoiceExpenseScreen({super.key,required this.token,required this.role});@override State<VoiceExpenseScreen> createState()=>_S();}
 class _S extends State<VoiceExpenseScreen>{
  final speech=stt.SpeechToText();String text='';bool listening=false,saving=false,loadingTrips=true;
  final amount=TextEditingController();
  List trips=[];int? tripId;
+ bool get _isOwner=>widget.role=='OWNER'||widget.role=='ADMIN';
+ List get _activeTrips=>trips.where((t)=>t['status']!='COMPLETED').toList();
+ bool get _tripRequired=>!_isOwner && _activeTrips.isNotEmpty;
+ List get _selectableTrips=>_tripRequired?_activeTrips:trips;
+
  @override void initState(){super.initState();loadTrips();}
  Future<void> loadTrips()async{final r=await Api.trips(widget.token);setState(()=>{trips=r['trips']??[],loadingTrips=false});}
  Future<void> start()async{final ok=await speech.initialize();if(!ok)return;setState(()=>listening=true);speech.listen(onResult:(r)=>setState(()=>text=r.recognizedWords));}
  void stop(){speech.stop();setState(()=>listening=false);}
  Future<void> confirm()async{
-   if(tripId==null){ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:Text('Select a trip first')));return;}
+   if(_tripRequired && tripId==null){ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:Text('Select your active trip first')));return;}
    final amt=double.tryParse(amount.text);
    if(amt==null||amt<=0){ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:Text('Enter a valid amount')));return;}
    setState(()=>saving=true);
@@ -28,8 +33,12 @@ class _S extends State<VoiceExpenseScreen>{
  const SizedBox(height:12),Text(text.isEmpty?'Example: Diesel 3500 rupees at Jaipur':text),
  const SizedBox(height:16),FilledButton.icon(onPressed:listening?stop:start,icon:Icon(listening?Icons.stop:Icons.mic),label:Text(listening?'Stop':'Start Recording')),
  const SizedBox(height:16),DropdownButtonFormField<int>(
-   initialValue:tripId,decoration:const InputDecoration(labelText:'Trip'),
-   items:trips.map<DropdownMenuItem<int>>((t)=>DropdownMenuItem(value:t['id'],child:Text(t['trip_number']))).toList(),
+   initialValue:tripId,
+   decoration:InputDecoration(labelText:_tripRequired?'Trip (required — active trip in progress)':'Trip (optional)'),
+   items:[
+     if(!_tripRequired) const DropdownMenuItem<int>(value:null,child:Text('No Trip')),
+     ..._selectableTrips.map<DropdownMenuItem<int>>((t)=>DropdownMenuItem(value:t['id'],child:Text(t['trip_number']))),
+   ],
    onChanged:(v)=>setState(()=>tripId=v)),
  const SizedBox(height:12),TextField(controller:amount,keyboardType:TextInputType.number,decoration:const InputDecoration(labelText:'Amount')),
  const Spacer(),

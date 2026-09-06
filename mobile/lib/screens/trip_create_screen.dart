@@ -4,14 +4,12 @@ class TripCreateScreen extends StatefulWidget{final String token;final String ro
 class _S extends State<TripCreateScreen>{
  final tripNumber=TextEditingController(),source=TextEditingController(),destination=TextEditingController(),
    goodsType=TextEditingController(),weight=TextEditingController(),freight=TextEditingController(),advance=TextEditingController();
- List trucks=[],drivers=[];int? truckId,driverId;bool loading=false,loadingLists=true;
+ List trucks=[];int? truckId;bool loading=false,loadingLists=true;
 
  @override void initState(){super.initState();loadLists();}
  Future<void> loadLists()async{
    final t=await Api.trucks(widget.token);
-   List d=[];
-   if(widget.role=='OWNER') d=(await Api.drivers(widget.token))['drivers']??[];
-   setState(()=>{trucks=t['trucks']??[],drivers=d,loadingLists=false});
+   setState(()=>{trucks=t['trucks']??[],loadingLists=false});
  }
 
  Future<void> submit()async{
@@ -19,12 +17,16 @@ class _S extends State<TripCreateScreen>{
      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:Text('Trip number, source and destination are required')));
      return;
    }
+   if(truckId==null){
+     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:Text('Select a truck')));
+     return;
+   }
    setState(()=>loading=true);
    final r=await Api.createTrip(widget.token,{
      'tripNumber':tripNumber.text,'source':source.text,'destination':destination.text,
      'goodsType':goodsType.text,'weight':weight.text,
      'freight':double.tryParse(freight.text)??0,'advance':double.tryParse(advance.text)??0,
-     'truckId':truckId,'driverId':widget.role=='OWNER'?driverId:null,
+     'truckId':truckId,
      'startDate':DateTime.now().toIso8601String().substring(0,10),
    });
    setState(()=>loading=false);
@@ -32,7 +34,9 @@ class _S extends State<TripCreateScreen>{
    else if(mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content:Text(r['message']??'Failed to create trip')));
  }
 
- @override Widget build(BuildContext c)=>Scaffold(
+ @override Widget build(BuildContext c){
+   final assignedTrucks=trucks.where((t)=>t['driver_id']!=null).toList();
+   return Scaffold(
    appBar:AppBar(title:const Text('New Trip')),
    body:loadingLists?const Center(child:CircularProgressIndicator()):SingleChildScrollView(padding:const EdgeInsets.all(16),child:Column(children:[
      TextField(controller:tripNumber,decoration:const InputDecoration(labelText:'Trip Number')),
@@ -43,15 +47,14 @@ class _S extends State<TripCreateScreen>{
      TextField(controller:freight,keyboardType:TextInputType.number,decoration:const InputDecoration(labelText:'Freight')),
      TextField(controller:advance,keyboardType:TextInputType.number,decoration:const InputDecoration(labelText:'Advance')),
      const SizedBox(height:12),
+     if(assignedTrucks.isEmpty) const Padding(padding:EdgeInsets.symmetric(vertical:8),
+       child:Text('No trucks with a driver assigned. Assign a driver to a truck first.',style:TextStyle(color:Colors.red))),
      DropdownButtonFormField<int>(
-       initialValue:truckId,decoration:const InputDecoration(labelText:'Truck'),
-       items:trucks.map<DropdownMenuItem<int>>((t)=>DropdownMenuItem(value:t['id'],child:Text(t['number']))).toList(),
+       initialValue:truckId,decoration:const InputDecoration(labelText:'Truck (driver shown)'),
+       items:assignedTrucks.map<DropdownMenuItem<int>>((t)=>DropdownMenuItem(value:t['id'],child:Text('${t['number']} · ${t['driver_name']}'))).toList(),
        onChanged:(v)=>setState(()=>truckId=v)),
-     if(widget.role=='OWNER') Padding(padding:const EdgeInsets.only(top:12),child:DropdownButtonFormField<int>(
-       initialValue:driverId,decoration:const InputDecoration(labelText:'Driver'),
-       items:drivers.map<DropdownMenuItem<int>>((d)=>DropdownMenuItem(value:d['id'],child:Text(d['name']))).toList(),
-       onChanged:(v)=>setState(()=>driverId=v))),
      const SizedBox(height:24),
      FilledButton(onPressed:loading?null:submit,child:Text(loading?'Saving...':'Create Trip')),
    ])));
+ }
 }

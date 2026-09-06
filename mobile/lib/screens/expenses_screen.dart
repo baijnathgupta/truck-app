@@ -1,12 +1,21 @@
 import 'package:flutter/material.dart';
 import '../services/api.dart';
-class ExpensesScreen extends StatefulWidget{final String token;final String role;final int? tripId;final String? tripLabel;
- const ExpensesScreen({super.key,required this.token,required this.role,this.tripId,this.tripLabel});
+class ExpensesScreen extends StatefulWidget{final String token;final String role;final int? tripId;final String? tripLabel;final int? truckId;final String? truckLabel;
+ const ExpensesScreen({super.key,required this.token,required this.role,this.tripId,this.tripLabel,this.truckId,this.truckLabel});
  @override State<ExpensesScreen> createState()=>_S();}
 class _S extends State<ExpensesScreen>{
  List expenses=[];bool loading=true;
  @override void initState(){super.initState();load();}
- Future<void> load()async{setState(()=>loading=true);final r=await Api.expenses(widget.token,tripId:widget.tripId);setState(()=>{expenses=r['expenses']??[],loading=false});}
+ Future<void> load()async{setState(()=>loading=true);final r=await Api.expenses(widget.token,tripId:widget.tripId,truckId:widget.truckId);setState(()=>{expenses=r['expenses']??[],loading=false});}
+
+ String _fmt(String? iso){
+   if(iso==null) return '';
+   final d=DateTime.tryParse(iso);
+   if(d==null) return iso;
+   final l=d.toLocal();
+   String two(int n)=>n.toString().padLeft(2,'0');
+   return '${two(l.day)}/${two(l.month)}/${l.year} ${two(l.hour)}:${two(l.minute)}';
+ }
 
  Future<void> approve(int id)async{
    final r=await Api.approveExpense(widget.token,id);
@@ -32,7 +41,7 @@ class _S extends State<ExpensesScreen>{
  @override Widget build(BuildContext c){
    final isOwner=widget.role=='OWNER'||widget.role=='ADMIN';
    return Scaffold(
-     appBar:AppBar(title:Text(widget.tripLabel!=null?'Expenses · ${widget.tripLabel}':'Expenses')),
+     appBar:AppBar(title:Text(widget.tripLabel!=null?'Expenses · ${widget.tripLabel}':widget.truckLabel!=null?'Expenses · ${widget.truckLabel}':'Expenses')),
      body:loading?const Center(child:CircularProgressIndicator()):expenses.isEmpty?const Center(child:Text('No expenses yet')):
      RefreshIndicator(onRefresh:load,child:ListView.builder(itemCount:expenses.length,itemBuilder:(_,i){final e=expenses[i];
        final status=e['status']??'PENDING';
@@ -43,6 +52,7 @@ class _S extends State<ExpensesScreen>{
          ]),
          const SizedBox(height:4),
          Text('Trip: ${e['trip_number']??'-'}  ·  By: ${e['created_by_name']??'-'}'),
+         Text(_fmt(e['created_at']),style:TextStyle(color:Colors.grey.shade600,fontSize:12)),
          if((e['category']??'').toString().isNotEmpty) Text('Category: ${e['category']}'),
          if((e['description']??'').toString().isNotEmpty) Text(e['description']),
          if(isOwner && status=='PENDING') Padding(padding:const EdgeInsets.only(top:8),child:Row(children:[

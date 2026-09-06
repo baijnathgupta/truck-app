@@ -22,12 +22,12 @@ class DashboardScreen extends StatelessWidget{
      Text(isOwner?'Owner Dashboard':'Driver Dashboard',style:const TextStyle(fontSize:18,fontWeight:FontWeight.bold)),
      const SizedBox(height:12),
      if(isOwner) ...[
-       _tile(c,'Trucks',Icons.local_shipping,()=>Navigator.push(c,MaterialPageRoute(builder:(_)=>TruckScreen(token:token)))),
+       _tile(c,'Trucks',Icons.local_shipping,()=>Navigator.push(c,MaterialPageRoute(builder:(_)=>TruckScreen(token:token,role:user['role'])))),
        _tile(c,'Drivers',Icons.people,()=>Navigator.push(c,MaterialPageRoute(builder:(_)=>DriverScreen(token:token)))),
      ],
      _tile(c,'Trips',Icons.route,()=>Navigator.push(c,MaterialPageRoute(builder:(_)=>TripsScreen(token:token,role:user['role'])))),
      _tile(c,isOwner?'Expenses (Approve/Reject)':'My Expenses',Icons.receipt_long,()=>Navigator.push(c,MaterialPageRoute(builder:(_)=>ExpensesScreen(token:token,role:user['role'])))),
-     _tile(c,'Add Expense by Voice',Icons.mic,()=>Navigator.push(c,MaterialPageRoute(builder:(_)=>VoiceExpenseScreen(token:token)))),
+     _tile(c,'Add Expense by Voice',Icons.mic,()=>Navigator.push(c,MaterialPageRoute(builder:(_)=>VoiceExpenseScreen(token:token,role:user['role'])))),
    ]));
  }
 }
