@@ -48,8 +48,23 @@ class Api {
    return jsonDecode(r.body);
  }
 
+ static Future<Map<String,dynamic>> expenses(String token) async{
+   final r=await http.get(Uri.parse('$base/expenses'),headers:_headers(token));
+   return jsonDecode(r.body);
+ }
+
  static Future<Map<String,dynamic>> createExpense(String token,Map<String,dynamic> body) async{
    final r=await http.post(Uri.parse('$base/expenses'),headers:_headers(token),body:jsonEncode(body));
+   return jsonDecode(r.body);
+ }
+
+ static Future<Map<String,dynamic>> approveExpense(String token,int id) async{
+   final r=await http.post(Uri.parse('$base/expenses/$id/approve'),headers:_headers(token));
+   return jsonDecode(r.body);
+ }
+
+ static Future<Map<String,dynamic>> rejectExpense(String token,int id,String reason) async{
+   final r=await http.post(Uri.parse('$base/expenses/$id/reject'),headers:_headers(token),body:jsonEncode({'reason':reason}));
    return jsonDecode(r.body);
  }
 

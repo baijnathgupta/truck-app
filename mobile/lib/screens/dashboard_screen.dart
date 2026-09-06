@@ -3,6 +3,7 @@ import 'voice_expense_screen.dart';
 import 'truck_screen.dart';
 import 'driver_screen.dart';
 import 'trips_screen.dart';
+import 'expenses_screen.dart';
 import 'login_screen.dart';
 import '../services/session.dart';
 class DashboardScreen extends StatelessWidget{
@@ -25,6 +26,7 @@ class DashboardScreen extends StatelessWidget{
        _tile(c,'Drivers',Icons.people,()=>Navigator.push(c,MaterialPageRoute(builder:(_)=>DriverScreen(token:token)))),
      ],
      _tile(c,'Trips',Icons.route,()=>Navigator.push(c,MaterialPageRoute(builder:(_)=>TripsScreen(token:token,role:user['role'])))),
+     _tile(c,isOwner?'Expenses (Approve/Reject)':'My Expenses',Icons.receipt_long,()=>Navigator.push(c,MaterialPageRoute(builder:(_)=>ExpensesScreen(token:token,role:user['role'])))),
      _tile(c,'Add Expense by Voice',Icons.mic,()=>Navigator.push(c,MaterialPageRoute(builder:(_)=>VoiceExpenseScreen(token:token)))),
    ]));
  }

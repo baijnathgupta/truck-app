@@ -13,9 +13,9 @@ const upload = multer({
 });
 
 r.get('/', auth, async (req, res) => {
-  let sql = `SELECT e.*, c.name AS category, u.name AS created_by_name
+  let sql = `SELECT e.*, c.name AS category, u.name AS created_by_name, t.trip_number
              FROM expenses e
-             JOIN expense_categories c ON c.id = e.category_id
+             LEFT JOIN expense_categories c ON c.id = e.category_id
              JOIN users u ON u.id = e.created_by
              JOIN trips t ON t.id = e.trip_id `;
   let params = [];
