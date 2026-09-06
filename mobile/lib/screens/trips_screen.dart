@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/api.dart';
 import 'trip_create_screen.dart';
+import 'expenses_screen.dart';
 class TripsScreen extends StatefulWidget{final String token;final String role;const TripsScreen({super.key,required this.token,required this.role});@override State<TripsScreen> createState()=>_S();}
 class _S extends State<TripsScreen>{
  List trips=[];bool loading=true;
@@ -19,6 +20,8 @@ class _S extends State<TripsScreen>{
        title:Text('${t['trip_number']} · ${t['source']} → ${t['destination']}'),
        subtitle:Text('Truck: ${t['truck_number']??'-'}  Driver: ${t['driver_name']??'-'}'),
        trailing:Text(t['status']??''),
+       onTap:()=>Navigator.push(c,MaterialPageRoute(builder:(_)=>ExpensesScreen(
+         token:widget.token,role:widget.role,tripId:t['id'],tripLabel:t['trip_number']))),
      ));
    }));
 }

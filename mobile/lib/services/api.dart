@@ -48,8 +48,9 @@ class Api {
    return jsonDecode(r.body);
  }
 
- static Future<Map<String,dynamic>> expenses(String token) async{
-   final r=await http.get(Uri.parse('$base/expenses'),headers:_headers(token));
+ static Future<Map<String,dynamic>> expenses(String token,{int? tripId}) async{
+   final uri=Uri.parse('$base/expenses').replace(queryParameters:tripId!=null?{'tripId':'$tripId'}:null);
+   final r=await http.get(uri,headers:_headers(token));
    return jsonDecode(r.body);
  }
 

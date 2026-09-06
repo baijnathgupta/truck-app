@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import '../services/api.dart';
-class ExpensesScreen extends StatefulWidget{final String token;final String role;const ExpensesScreen({super.key,required this.token,required this.role});@override State<ExpensesScreen> createState()=>_S();}
+class ExpensesScreen extends StatefulWidget{final String token;final String role;final int? tripId;final String? tripLabel;
+ const ExpensesScreen({super.key,required this.token,required this.role,this.tripId,this.tripLabel});
+ @override State<ExpensesScreen> createState()=>_S();}
 class _S extends State<ExpensesScreen>{
  List expenses=[];bool loading=true;
  @override void initState(){super.initState();load();}
- Future<void> load()async{setState(()=>loading=true);final r=await Api.expenses(widget.token);setState(()=>{expenses=r['expenses']??[],loading=false});}
+ Future<void> load()async{setState(()=>loading=true);final r=await Api.expenses(widget.token,tripId:widget.tripId);setState(()=>{expenses=r['expenses']??[],loading=false});}
 
  Future<void> approve(int id)async{
    final r=await Api.approveExpense(widget.token,id);
@@ -30,7 +32,7 @@ class _S extends State<ExpensesScreen>{
  @override Widget build(BuildContext c){
    final isOwner=widget.role=='OWNER'||widget.role=='ADMIN';
    return Scaffold(
-     appBar:AppBar(title:const Text('Expenses')),
+     appBar:AppBar(title:Text(widget.tripLabel!=null?'Expenses · ${widget.tripLabel}':'Expenses')),
      body:loading?const Center(child:CircularProgressIndicator()):expenses.isEmpty?const Center(child:Text('No expenses yet')):
      RefreshIndicator(onRefresh:load,child:ListView.builder(itemCount:expenses.length,itemBuilder:(_,i){final e=expenses[i];
        final status=e['status']??'PENDING';

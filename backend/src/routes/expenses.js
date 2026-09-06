@@ -21,6 +21,7 @@ r.get('/', auth, async (req, res) => {
   let params = [];
   if (req.user.role === 'DRIVER') { sql += 'WHERE e.created_by = ?'; params = [req.user.id]; }
   else if (req.user.role === 'OWNER') { sql += 'WHERE t.owner_id = ?'; params = [req.user.id]; }
+  if (req.query.tripId) { sql += (params.length ? ' AND' : ' WHERE') + ' e.trip_id = ?'; params.push(req.query.tripId); }
   sql += ' ORDER BY e.id DESC';
   const [rows] = await pool.query(sql, params);
   res.json({ success: true, expenses: rows });
