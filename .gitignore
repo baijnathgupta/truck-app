@@ -1,0 +1,33 @@
+# Backend
+backend/node_modules/
+backend/.env
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Admin
+admin/node_modules/
+admin/dist/
+admin/.env
+
+# Mobile (Flutter)
+mobile/.dart_tool/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/.packages
+mobile/build/
+mobile/android/.gradle/
+mobile/android/local.properties
+mobile/ios/Pods/
+mobile/ios/Flutter/Flutter.framework
+mobile/ios/Flutter/Flutter.podspec
+mobile/ios/.symlinks/
+mobile/macos/Pods/
+mobile/linux/flutter/ephemeral/
+mobile/windows/flutter/ephemeral/
+
+# OS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
