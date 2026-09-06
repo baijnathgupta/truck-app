@@ -66,5 +66,19 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+    <key>NSCameraUsageDescription</key>
+    <string>Access required to upload your profile photos</string>
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>Location is needed to track your routes and for calculation of traveling distance</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>Location is needed to track your routes and for calculation of traveling distance</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Location is needed to track your routes and for calculation of traveling distance</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Required for better user experience</string>
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>Used to convert your spoken expense details into text</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Access required to select your profile photos</string>
 </dict>
 </plist>
